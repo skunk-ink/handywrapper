@@ -1,0 +1,10 @@
+README.md
+setup.cfg
+setup.py
+handywrapper/__init__.py
+handywrapper/api.py
+handywrapper.egg-info/PKG-INFO
+handywrapper.egg-info/SOURCES.txt
+handywrapper.egg-info/dependency_links.txt
+handywrapper.egg-info/requires.txt
+handywrapper.egg-info/top_level.txt
