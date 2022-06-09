@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name='handywrapper',
-    version='1.0.6',    
+    version='1.0.7',    
     description='A Python wrapper for the Handshake API',
     url='https://github.com/skunk-ink/handywrapper',
-    download_url='https://github.com/skunk-ink/handywrapper/archive/refs/tags/v1.0.6.tar.gz',
+    download_url='https://github.com/skunk-ink/handywrapper/archive/refs/tags/v1.0.7.tar.gz',
     keywords=['handywrapper'],
     author='skunk-ink',
     author_email='murray.crawford85@gmail.com',
