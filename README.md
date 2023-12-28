@@ -37,7 +37,7 @@ pip install handywrapper
 ```
 
 # **Usage**
-**Source Code: [`api.py`](handshake/api.py)**
+**Source Code: [`api.py`](handywrapper/api.py)**
 > *For more information on using the Handshake API, visit the **[Handshake API Docs](https://hsd-dev.org/api-docs/#introduction)***
 
 ```python
