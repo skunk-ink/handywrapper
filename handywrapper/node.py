@@ -976,7 +976,7 @@ class hsd(HTTPClient):
         return self.post('/', {'method': 'signrawtransaction', 'params': [raw_tx, prevtxs, [private_key]]})
     ### END METHOD ################################### rpc_signRawTransaction(self, raw_tx:str, tx_hash:str, tx_index:int, address:str, amount:int, private_key:str)
 
-    def rpc_getTxOutProof(self, tx_id_list:str):
+    def rpc_getTxOutProof(self, tx_id_list:list, block_hash:str=None):
         """
         DESCRIPTION:
 
@@ -987,10 +987,13 @@ class hsd(HTTPClient):
         (*) Denotes required argument
 
         (*) tx_id_list : List array of transaction ID's
+
+        ( ) block_hash : Hash of the block to search (searches the whole chain if omitted).
         """
 
-        return self.post('/', {'method': 'gettxoutproof', 'params': [tx_id_list]})
-    ### END METHOD ################################### rpc_getTxOutProof(self, tx_id_list:str)
+        params = [tx_id_list] if block_hash is None else [tx_id_list, block_hash]
+        return self.post('/', {'method': 'gettxoutproof', 'params': params})
+    ### END METHOD ################################### rpc_getTxOutProof(self, tx_id_list:list, block_hash:str=None)
 
     def rpc_verifyTxOutProof(self, proof:str):
         """

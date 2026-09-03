@@ -70,7 +70,7 @@ RPC_CASES = [
     ('rpc_sendRawTransaction', {'raw_tx': 'hex'}, 'sendrawtransaction'),
     ('rpc_createRawTransaction', {'tx_hash': 'h', 'tx_index': 0, 'address': 'a', 'amount': 1, 'data': 'd'}, 'createrawtransaction'),
     ('rpc_signRawTransaction', {'raw_tx': 'hex', 'tx_hash': 'h', 'tx_index': 0, 'address': 'a', 'amount': 1, 'private_key': 'pk'}, 'signrawtransaction'),
-    ('rpc_getTxOutProof', {'tx_id_list': 'id'}, 'gettxoutproof'),
+    ('rpc_getTxOutProof', {'tx_id_list': ['id']}, 'gettxoutproof'),
     ('rpc_verifyTxOutProof', {'proof': 'p'}, 'verifytxoutproof'),
     ('rpc_getNetworkHashPerSec', {}, 'getnetworkhashps'),
     ('rpc_getMiningInfo', {}, 'getmininginfo'),
@@ -140,3 +140,16 @@ def test_node_rpc_method(hsd_client, method, kwargs, rpc_method):
         import json
         sent = json.loads(req.body)
         assert sent['method'] == rpc_method
+
+
+def test_rpc_get_tx_out_proof_wraps_txids_in_array(hsd_client):
+    # Bug-fix regression: hsd's `gettxoutproof ["txid",...] (blockhash)` requires
+    # its first positional param to be an array; sending a bare string 500s with
+    # "Param #0 must be a array."
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.POST, BASE + '/', json={'result': None}, status=200)
+        hsd_client.rpc_getTxOutProof(['txid1', 'txid2'])
+
+        import json
+        sent = json.loads(rsps.calls[0].request.body)
+        assert sent['params'] == [['txid1', 'txid2']]
