@@ -261,6 +261,29 @@ def test_create_wallet_omits_unset_key_fields(hsw_client):
         assert sent['watchOnly'] is False
 
 
+def test_rpc_sign_message_with_name_handles_embedded_quotes(hsw_client):
+    # Regression test for a reported 1.x bug: rpc_signMessageWithName built
+    # its JSON-RPC body via raw string concatenation
+    # ('{"params": [ "' + name + '", "' + message + '" ] }'), so a message
+    # containing a double quote -- e.g. Namebase's domain-listing ownership
+    # verification message, which always quotes the domain name -- produced
+    # invalid JSON and the call failed with a JSON parse error. Fixed
+    # structurally in 2.0.0: every method builds a plain dict and lets
+    # `requests`' json= parameter serialize it, which escapes quotes
+    # correctly. Uses the exact message format from the report.
+    message = 'Namebase registry: I verify ownership of "culer" for account #22940.'
+
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.POST, BASE + '/', json={'result': 'deadbeef', 'error': None}, status=200)
+        hsw_client.rpc_signMessageWithName('culer', message)
+
+        req = rsps.calls[0].request
+        # The raw bytes on the wire must be valid JSON with the quote escaped...
+        sent = jsonlib.loads(req.body)
+        # ...and must decode back to the exact original message, unmangled.
+        assert sent['params'] == ['culer', message]
+
+
 def test_create_wallet_passphrase_is_optional(hsw_client):
     # hsd genuinely treats `passphrase` as optional (omitting it creates an
     # unencrypted wallet) -- the Python signature must allow that too, not
