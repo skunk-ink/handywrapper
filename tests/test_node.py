@@ -153,3 +153,18 @@ def test_rpc_get_tx_out_proof_wraps_txids_in_array(hsd_client):
         import json
         sent = json.loads(rsps.calls[0].request.body)
         assert sent['params'] == [['txid1', 'txid2']]
+
+
+def test_rpc_create_raw_transaction_omits_empty_data(hsd_client):
+    # Bug-fix regression: hsd's createrawtransaction rejects an empty-string
+    # 'data' output with "Hash is the wrong size" -- it must be omitted from
+    # the outputs object entirely when not given, not sent as ''.
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.POST, BASE + '/', json={'result': None}, status=200)
+        hsd_client.rpc_createRawTransaction('h', 0, 'addr1', 1)
+
+        import json
+        sent = json.loads(rsps.calls[0].request.body)
+        outputs = sent['params'][1]
+        assert 'data' not in outputs
+        assert outputs == {'addr1': 1}

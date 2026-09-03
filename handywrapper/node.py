@@ -925,7 +925,7 @@ class hsd(HTTPClient):
         return self.post('/', {'method': 'sendrawtransaction', 'params': [raw_tx]})
     ### END METHOD ################################### rpc_sendRawTransaction(self, raw_tx:str)
 
-    def rpc_createRawTransaction(self, tx_hash:str, tx_index:int, address:str, amount:int, data:str):
+    def rpc_createRawTransaction(self, tx_hash:str, tx_index:int, address:str, amount:int, data:str=None):
         """
         DESCRIPTION:
 
@@ -942,10 +942,16 @@ class hsd(HTTPClient):
         (*) address  : Recipient address.
 
         (*) amount   : Amount to send in HNS (float).
+
+        ( ) data     : Hex-encoded nulldata to attach as an extra output.
+                       hsd rejects an empty string here ("Hash is the wrong
+                       size"), so it's omitted unless given.
         """
 
         inputs = [{'txid': tx_hash, 'vout': tx_index}]
-        outputs = {address: amount, 'data': data}
+        outputs = {address: amount}
+        if data:
+            outputs['data'] = data
         return self.post('/', {'method': 'createrawtransaction', 'params': [inputs, outputs]})
     ### END METHOD ################################### rpc_createRawTransaction(self, tx_hash:str, tx_index:int, address:str, amount:int, data:str)
 
