@@ -58,10 +58,15 @@ class HTTPClient:
 
         ( ) json_body : Request body, sent as JSON.
 
-        ( ) params    : Query string parameters.
+        ( ) params    : Query string parameters. Boolean values are sent as
+                        lowercase 'true'/'false' strings, matching what hsd's
+                        query-string validator accepts.
         """
 
         url = f'http://x:{self.API_KEY}@{self.ADDRESS}:{self.PORT}{endpoint}'
+
+        if params:
+            params = {k: ('true' if v is True else 'false' if v is False else v) for k, v in params.items()}
 
         try:
             response = requests.request(method, url, json=json_body, params=params, timeout=self.TIMEOUT)

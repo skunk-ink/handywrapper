@@ -9,7 +9,8 @@ BASE = 'http://x:testkey@127.0.0.1:12037'
 REST_CASES = [
     ('getInfo', {}, 'GET', '/', {}),
     ('getMemPool', {}, 'GET', '/mempool', {}),
-    ('getMemPoolInvalid', {'verbose': True}, 'GET', '/mempool/invalid', {'params': {'verbose': 'True'}}),
+    # hsd's query-string validator requires lowercase 'true'/'false', not Python's str(True).
+    ('getMemPoolInvalid', {'verbose': True}, 'GET', '/mempool/invalid', {'params': {'verbose': 'true'}}),
     ('getMemPoolInvalidHash', {'tx_hash': 'abc'}, 'GET', '/mempool/invalid/abc', {}),
     ('getBlockByHashOrHeight', {'block_hash_or_height': '100'}, 'GET', '/block/100', {}),
     ('getHeaderByHashOrHeight', {'header_hash_or_height': '100'}, 'GET', '/header/100', {}),

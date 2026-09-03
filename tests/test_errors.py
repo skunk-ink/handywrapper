@@ -57,3 +57,17 @@ def test_successful_response_returns_parsed_json(hsd_client):
                    json=['abc'], status=200)
 
     assert hsd_client.getMemPool() == ['abc']
+
+
+@responses.activate
+def test_bool_query_params_serialize_lowercase(hsd_client):
+    # Bug-fix regression: `requests` stringifies a Python bool to "True"/"False"
+    # in a query string, but hsd's Validator.bool() only accepts lowercase
+    # 'true'/'false' (or '1'/'0') and 400s on anything else.
+    responses.add(responses.GET, 'http://x:testkey@127.0.0.1:12037/mempool/invalid',
+                   json={}, status=200)
+
+    hsd_client.getMemPoolInvalid(verbose=True)
+
+    assert 'verbose=true' in responses.calls[0].request.url
+    assert 'verbose=True' not in responses.calls[0].request.url

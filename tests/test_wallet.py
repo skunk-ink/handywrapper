@@ -57,11 +57,11 @@ REST_CASES = [
     ('deleteTransaction', {'id': 'w1', 'tx_hash': 'h'}, 'DELETE', '/wallet/w1/tx/h', {}),
     # Breaking change (hsd v7): now paginated via query params instead of a bare GET.
     ('getWalletTxHistory', {'id': 'w1', 'limit': 10, 'reverse': True, 'after': 'h'}, 'GET', '/wallet/w1/tx/history',
-     {'params': {'limit': '10', 'reverse': 'True', 'after': 'h'}}),
+     {'params': {'limit': '10', 'reverse': 'true', 'after': 'h'}}),
     ('getPendingTransactions', {'id': 'w1', 'limit': 10}, 'GET', '/wallet/w1/tx/unconfirmed', {'params': {'limit': '10'}}),
     ('getWalletNames', {'id': 'w1'}, 'GET', '/wallet/w1/name', {}),
     # Breaking change (hsd v8): 'own' filter param added.
-    ('getWalletName', {'name': 'n', 'id': 'w1', 'own': True}, 'GET', '/wallet/w1/name/n', {'params': {'own': 'True'}}),
+    ('getWalletName', {'name': 'n', 'id': 'w1', 'own': True}, 'GET', '/wallet/w1/name/n', {'params': {'own': 'true'}}),
     ('getWalletAuctions', {'id': 'w1'}, 'GET', '/wallet/w1/auction', {}),
     ('getWalletAuctionByName', {'name': 'n', 'id': 'w1'}, 'GET', '/wallet/w1/auction/n', {}),
     ('getWalletBids', {'id': 'w1'}, 'GET', '/wallet/w1/bid', {}),
