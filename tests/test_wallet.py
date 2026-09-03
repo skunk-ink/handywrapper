@@ -261,6 +261,18 @@ def test_create_wallet_omits_unset_key_fields(hsw_client):
         assert sent['watchOnly'] is False
 
 
+def test_create_wallet_passphrase_is_optional(hsw_client):
+    # hsd genuinely treats `passphrase` as optional (omitting it creates an
+    # unencrypted wallet) -- the Python signature must allow that too, not
+    # force every caller to supply one.
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.PUT, BASE + '/wallet/w1', json={'ok': True}, status=200)
+        hsw_client.createWallet(id='w1')
+
+        sent = jsonlib.loads(rsps.calls[0].request.body)
+        assert 'passphrase' not in sent
+
+
 def test_create_account_omits_unset_account_key(hsw_client):
     # Same bug, same fix, on the account-creation endpoint.
     with responses.RequestsMock() as rsps:

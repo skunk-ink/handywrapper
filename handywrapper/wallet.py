@@ -29,7 +29,7 @@ class hsw(HTTPClient):
         super().__init__(api_key, ip_address, port, timeout)
     ### END METHOD ################################### __init__(self, api_key:str, ip_address:str='127.0.0.1', port:int=12039, timeout:int=30):
 
-    def createWallet(self, passphrase:str, id:str='primary', account_key:str=None, type:str='pubkeyhash',
+    def createWallet(self, passphrase:str=None, id:str='primary', account_key:str=None, type:str='pubkeyhash',
                     mnemonic:str=None, master:str=None, watch_only:bool=False, m:int=1, n:int=1):
         """
         DESCRIPTION:
@@ -52,7 +52,8 @@ class hsw(HTTPClient):
 
             ( ) n           : 'n' value for multisig (m-of-n)
 
-            (*) passphrase  : A strong passphrase used to encrypt the wallet.
+            ( ) passphrase  : A strong passphrase used to encrypt the wallet. hsd treats this as
+                              genuinely optional -- omit it to create an unencrypted wallet.
 
             ( ) watch_only  : Whether to create a watch-only wallet. Default = False
 
@@ -72,7 +73,7 @@ class hsw(HTTPClient):
             'mnemonic': mnemonic,
         })
         return self.put(f'/wallet/{id}', body)
-    ### END METHOD ################################### createWallet(self, id:str='primary', passphrase:str, account_key:str=None, type:str='pubkeyhash',
+    ### END METHOD ################################### createWallet(self, passphrase:str=None, id:str='primary', account_key:str=None, type:str='pubkeyhash',
     #                                                               mnemonic:str=None, master:str=None, watch_only:bool=False, m:int=1, n:int=1)
 
     def resetAuthToken(self, passphrase:str, id:str='primary'):
