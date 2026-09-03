@@ -273,6 +273,33 @@ def test_create_wallet_passphrase_is_optional(hsw_client):
         assert 'passphrase' not in sent
 
 
+@pytest.mark.parametrize('method,kwargs,expected_params', [
+    # Bug-fix regression: hsd's create*/covenant RPCs reject an empty-string
+    # `account` with "Invalid type for database key" (found live: an actual
+    # rpc_createREVEAL call 500'd this way). The account positional param
+    # must be omitted entirely when not given, not sent as ''.
+    ('rpc_createOPEN', {'name': 'n'}, ['n']),
+    ('rpc_createOPEN', {'name': 'n', 'account': 'default'}, ['n', 'default']),
+    ('rpc_createREVEAL', {}, ['']),
+    ('rpc_createREVEAL', {'name': 'n', 'account': 'default'}, ['n', 'default']),
+    ('rpc_createREDEEM', {}, ['']),
+    ('rpc_createUPDATE', {'name': 'n', 'data': {'a': 1}}, ['n', {'a': 1}]),
+    ('rpc_createUPDATE', {'name': 'n', 'data': {'a': 1}, 'account': 'default'}, ['n', {'a': 1}, 'default']),
+    ('rpc_createRENEWAL', {'name': 'n'}, ['n']),
+    ('rpc_createTRANSFER', {'name': 'n', 'address': 'a'}, ['n', 'a']),
+    ('rpc_createFINALIZE', {'name': 'n'}, ['n']),
+    ('rpc_createCANCEL', {'name': 'n'}, ['n']),
+    ('rpc_createREVOKE', {'name': 'n'}, ['n']),
+])
+def test_create_rpc_omits_unset_account(hsw_client, method, kwargs, expected_params):
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.POST, BASE + '/', json={'result': None}, status=200)
+        getattr(hsw_client, method)(**kwargs)
+
+        sent = jsonlib.loads(rsps.calls[0].request.body)
+        assert sent['params'] == expected_params
+
+
 def test_create_account_omits_unset_account_key(hsw_client):
     # Same bug, same fix, on the account-creation endpoint.
     with responses.RequestsMock() as rsps:

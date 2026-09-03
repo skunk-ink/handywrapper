@@ -1808,7 +1808,7 @@ class hsw(HTTPClient):
         return self.post('/', {'method': 'importnonce', 'params': [name, address, _bidValue]})
     ### END METHOD ################################### rpc_importNONCE(self, name:str, address:str, _bidValue:float)
 
-    def rpc_createOPEN(self, name:str, account:str=''):
+    def rpc_createOPEN(self, name:str, account:str=None):
         """
         DESCRIPTION:
 
@@ -1820,11 +1820,14 @@ class hsw(HTTPClient):
 
             (*) name    : Domain name to `OPEN` bidding on.
 
-            (*) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createopen', 'params': [name, account]})
-    ### END METHOD ################################### rpc_createOPEN(self, name:str, account:str='')
+        params = [name] if account is None else [name, account]
+        return self.post('/', {'method': 'createopen', 'params': params})
+    ### END METHOD ################################### rpc_createOPEN(self, name:str, account:str=None)
 
     def rpc_createBID(self, name:str, bid_amount:float, lockup_blind:float, account:str):
         """
@@ -1852,7 +1855,7 @@ class hsw(HTTPClient):
         return self.post('/', {'method': 'createbid', 'params': [name, bid_amount, lockup_blind, account]})
     ### END METHOD ################################### rpc_createBID(self, name:str, bid_amount:float, lockup_blind:float, account:str)
 
-    def rpc_createREVEAL(self, name:str='', account:str=''):
+    def rpc_createREVEAL(self, name:str='', account:str=None):
         """
         DESCRIPTION:
 
@@ -1867,13 +1870,16 @@ class hsw(HTTPClient):
 
             ( ) name    : Domain name to `REVEAL` bid for (`null` for all names).
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createreveal', 'params': [name, account]})
-    ### END METHOD ################################### rpc_createREVEAL(self, name:str='', account:str='')
+        params = [name] if account is None else [name, account]
+        return self.post('/', {'method': 'createreveal', 'params': params})
+    ### END METHOD ################################### rpc_createREVEAL(self, name:str='', account:str=None)
 
-    def rpc_createREDEEM(self, name:str='', account:str=''):
+    def rpc_createREDEEM(self, name:str='', account:str=None):
         """
         DESCRIPTION:
 
@@ -1888,13 +1894,16 @@ class hsw(HTTPClient):
 
             ( ) name    : Domain name to `REDEEM` a losing bid for (null for all names).
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createredeem', 'params': [name, account]})
-    ### END METHOD ################################### rpc_createREDEEM(self, name:str='', account:str='')
+        params = [name] if account is None else [name, account]
+        return self.post('/', {'method': 'createredeem', 'params': params})
+    ### END METHOD ################################### rpc_createREDEEM(self, name:str='', account:str=None)
 
-    def rpc_createUPDATE(self, name:str, data:dict, account:str=''):
+    def rpc_createUPDATE(self, name:str, data:dict, account:str=None):
         """
         DESCRIPTION:
 
@@ -1909,13 +1918,16 @@ class hsw(HTTPClient):
             (*) data    : JSON-encoded resource object.
                            See https://hsd-dev.org/api-docs/#resource-object for more information.
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createupdate', 'params': [name, data, account]})
-    ### END METHOD ################################### rpc_createUPDATE(self, name:str, data:dict, account:str='')
+        params = [name, data] if account is None else [name, data, account]
+        return self.post('/', {'method': 'createupdate', 'params': params})
+    ### END METHOD ################################### rpc_createUPDATE(self, name:str, data:dict, account:str=None)
 
-    def rpc_createRENEWAL(self, name:str, account:str=''):
+    def rpc_createRENEWAL(self, name:str, account:str=None):
         """
         DESCRIPTION:
 
@@ -1927,13 +1939,16 @@ class hsw(HTTPClient):
 
             (*) name    : Domain name to `RENEW` ownership of.
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createrenewal', 'params': [name, account]})
-    ### END METHOD ################################### rpc_createRENEWAL(self, name:str, account:str='')
+        params = [name] if account is None else [name, account]
+        return self.post('/', {'method': 'createrenewal', 'params': params})
+    ### END METHOD ################################### rpc_createRENEWAL(self, name:str, account:str=None)
 
-    def rpc_createTRANSFER(self, name:str, address:str, account:str=''):
+    def rpc_createTRANSFER(self, name:str, address:str, account:str=None):
         """
         DESCRIPTION:
 
@@ -1947,13 +1962,16 @@ class hsw(HTTPClient):
 
             (*) address : Address to transfer name ownership to.
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createtransfer', 'params': [name, address, account]})
-    ### END METHOD ################################### rpc_createTRANSFER(self, name:str, address:str, account:str='')
+        params = [name, address] if account is None else [name, address, account]
+        return self.post('/', {'method': 'createtransfer', 'params': params})
+    ### END METHOD ################################### rpc_createTRANSFER(self, name:str, address:str, account:str=None)
 
-    def rpc_createFINALIZE(self, name:str, account:str=''):
+    def rpc_createFINALIZE(self, name:str, account:str=None):
         """
         DESCRIPTION:
 
@@ -1965,13 +1983,16 @@ class hsw(HTTPClient):
 
             (*) name    : Domain name to `FINALIZE`.
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createfinalize', 'params': [name, account]})
-    ### END METHOD ################################### rpc_createFINALIZE(self, name:str, account:str='')
+        params = [name] if account is None else [name, account]
+        return self.post('/', {'method': 'createfinalize', 'params': params})
+    ### END METHOD ################################### rpc_createFINALIZE(self, name:str, account:str=None)
 
-    def rpc_createCANCEL(self, name:str, account:str=''):
+    def rpc_createCANCEL(self, name:str, account:str=None):
         """
         DESCRIPTION:
 
@@ -1983,13 +2004,16 @@ class hsw(HTTPClient):
 
             (*) name    : Domain name to `CANCEL` the in-progress transfer of.
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createcancel', 'params': [name, account]})
-    ### END METHOD ################################### rpc_createCANCEL(self, name:str, account:str='')
+        params = [name] if account is None else [name, account]
+        return self.post('/', {'method': 'createcancel', 'params': params})
+    ### END METHOD ################################### rpc_createCANCEL(self, name:str, account:str=None)
 
-    def rpc_createREVOKE(self, name:str, account:str=''):
+    def rpc_createREVOKE(self, name:str, account:str=None):
         """
         DESCRIPTION:
 
@@ -2001,11 +2025,14 @@ class hsw(HTTPClient):
 
             (*) name    : Domain name to `REVOKE` the in-progress transfer of.
 
-            ( ) account : Account to use.
+            ( ) account : Account to use. hsd's account lookup rejects an
+                          empty string with "Invalid type for database key",
+                          so it's omitted unless given.
         """
 
-        return self.post('/', {'method': 'createrevoke', 'params': [name, account]})
-    ### END METHOD ################################### rpc_createREVOKE(self, name:str, account:str='')
+        params = [name] if account is None else [name, account]
+        return self.post('/', {'method': 'createrevoke', 'params': params})
+    ### END METHOD ################################### rpc_createREVOKE(self, name:str, account:str=None)
 
     def rpc_createBatch(self, actions:list, options:dict=None):
         """
