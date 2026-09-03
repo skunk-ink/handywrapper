@@ -213,6 +213,37 @@ def test_get_range_of_transactions_removed(hsw_client):
     assert not hasattr(hsw_client, 'getRangeOfTransactions')
 
 
+@pytest.mark.parametrize('method,kwargs,expected_params', [
+    # Bug-fix regression: hsd's listhistory/listunconfirmed RPC family takes flat
+    # positional params (account, limit, reverse) or (account, cursor, limit,
+    # reverse) -- NOT (account, {limit, reverse}). Found via live testing: hsd
+    # rejected the options-object shape with "Param #1 must be a int."
+    ('rpc_listHistory', {'account': 'default'}, ['default']),
+    ('rpc_listHistory', {'account': 'default', 'limit': 5}, ['default', 5]),
+    ('rpc_listHistory', {'account': 'default', 'reverse': True}, ['default', None, True]),
+    ('rpc_listHistoryAfter', {'account': 'default', 'txid': 'h'}, ['default', 'h']),
+    ('rpc_listHistoryAfter', {'account': 'default', 'txid': 'h', 'limit': 5, 'reverse': True}, ['default', 'h', 5, True]),
+    ('rpc_listHistoryByTime', {'account': 'default', 'timestamp': 100}, ['default', 100]),
+    ('rpc_listUnconfirmed', {'account': 'default'}, ['default']),
+    ('rpc_listUnconfirmed', {'account': 'default', 'limit': 5}, ['default', 5]),
+    ('rpc_listUnconfirmedAfter', {'account': 'default', 'txid': 'h'}, ['default', 'h']),
+    ('rpc_listUnconfirmedByTime', {'account': 'default', 'timestamp': 100}, ['default', 100]),
+    # Bug-fix regression: an empty-string account isn't hsd's "all accounts"
+    # sentinel -- hsd looks up an account literally named '' and 404s with
+    # "Account not found." hsd's own CLI/RPC convention for "all accounts" is
+    # the literal string '*', which the default must produce.
+    ('rpc_listHistory', {}, ['*']),
+    ('rpc_listUnconfirmed', {}, ['*']),
+])
+def test_history_rpc_uses_positional_params(hsw_client, method, kwargs, expected_params):
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.POST, BASE + '/', json={'result': None}, status=200)
+        getattr(hsw_client, method)(**kwargs)
+
+        sent = jsonlib.loads(rsps.calls[0].request.body)
+        assert sent['params'] == expected_params
+
+
 def test_create_wallet_omits_unset_key_fields(hsw_client):
     # Bug-fix regression: createWallet used to always send accountKey/master/mnemonic
     # as '' when not provided. hsd's watch-only account path does

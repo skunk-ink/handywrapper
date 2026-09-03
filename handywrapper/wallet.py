@@ -2703,7 +2703,7 @@ class hsw(HTTPClient):
         return self.post('/', {'method': 'listtransactions', 'params': params})
     ### END METHOD ################################### rpc_listTransactions(self, account:str='', count:int=0, start_from:int=0, watch_only:bool=None)
 
-    def rpc_listHistory(self, account:str='', limit:int=None, reverse:bool=False):
+    def rpc_listHistory(self, account:str='*', limit:int=None, reverse:bool=False):
         """
         DESCRIPTION:
 
@@ -2711,17 +2711,19 @@ class hsw(HTTPClient):
 
         PARAMS:
 
-            ( ) account : Account name.
+            ( ) account : Account name. Default = '*' (all accounts).
 
             ( ) limit   : Maximum number of results to return.
 
             ( ) reverse : Return results in reverse order. Default = False
         """
 
-        options = _compact({'limit': limit})
+        params = [account]
+        if limit is not None or reverse:
+            params.append(limit)
         if reverse:
-            options['reverse'] = True
-        return self.post('/', {'method': 'listhistory', 'params': [account, options]})
+            params.append(True)
+        return self.post('/', {'method': 'listhistory', 'params': params})
     ### END METHOD ################################### rpc_listHistory(self, account:str='', limit:int=None, reverse:bool=False)
 
     def rpc_listHistoryAfter(self, account:str, txid:str, limit:int=None, reverse:bool=False):
@@ -2743,10 +2745,12 @@ class hsw(HTTPClient):
             ( ) reverse : Return results in reverse order. Default = False
         """
 
-        options = _compact({'hash': txid, 'limit': limit})
+        params = [account, txid]
+        if limit is not None or reverse:
+            params.append(limit)
         if reverse:
-            options['reverse'] = True
-        return self.post('/', {'method': 'listhistoryafter', 'params': [account, options]})
+            params.append(True)
+        return self.post('/', {'method': 'listhistoryafter', 'params': params})
     ### END METHOD ################################### rpc_listHistoryAfter(self, account:str, txid:str, limit:int=None, reverse:bool=False)
 
     def rpc_listHistoryByTime(self, account:str, timestamp:int, limit:int=None, reverse:bool=False):
@@ -2768,13 +2772,15 @@ class hsw(HTTPClient):
             ( ) reverse   : Return results in reverse order. Default = False
         """
 
-        options = _compact({'time': timestamp, 'limit': limit})
+        params = [account, timestamp]
+        if limit is not None or reverse:
+            params.append(limit)
         if reverse:
-            options['reverse'] = True
-        return self.post('/', {'method': 'listhistorybytime', 'params': [account, options]})
+            params.append(True)
+        return self.post('/', {'method': 'listhistorybytime', 'params': params})
     ### END METHOD ################################### rpc_listHistoryByTime(self, account:str, timestamp:int, limit:int=None, reverse:bool=False)
 
-    def rpc_listUnconfirmed(self, account:str='', limit:int=None, reverse:bool=False):
+    def rpc_listUnconfirmed(self, account:str='*', limit:int=None, reverse:bool=False):
         """
         DESCRIPTION:
 
@@ -2782,17 +2788,19 @@ class hsw(HTTPClient):
 
         PARAMS:
 
-            ( ) account : Account name.
+            ( ) account : Account name. Default = '*' (all accounts).
 
             ( ) limit   : Maximum number of results to return.
 
             ( ) reverse : Return results in reverse order. Default = False
         """
 
-        options = _compact({'limit': limit})
+        params = [account]
+        if limit is not None or reverse:
+            params.append(limit)
         if reverse:
-            options['reverse'] = True
-        return self.post('/', {'method': 'listunconfirmed', 'params': [account, options]})
+            params.append(True)
+        return self.post('/', {'method': 'listunconfirmed', 'params': params})
     ### END METHOD ################################### rpc_listUnconfirmed(self, account:str='', limit:int=None, reverse:bool=False)
 
     def rpc_listUnconfirmedAfter(self, account:str, txid:str, limit:int=None, reverse:bool=False):
@@ -2814,10 +2822,12 @@ class hsw(HTTPClient):
             ( ) reverse : Return results in reverse order. Default = False
         """
 
-        options = _compact({'hash': txid, 'limit': limit})
+        params = [account, txid]
+        if limit is not None or reverse:
+            params.append(limit)
         if reverse:
-            options['reverse'] = True
-        return self.post('/', {'method': 'listunconfirmedafter', 'params': [account, options]})
+            params.append(True)
+        return self.post('/', {'method': 'listunconfirmedafter', 'params': params})
     ### END METHOD ################################### rpc_listUnconfirmedAfter(self, account:str, txid:str, limit:int=None, reverse:bool=False)
 
     def rpc_listUnconfirmedByTime(self, account:str, timestamp:int, limit:int=None, reverse:bool=False):
@@ -2839,10 +2849,12 @@ class hsw(HTTPClient):
             ( ) reverse   : Return results in reverse order. Default = False
         """
 
-        options = _compact({'time': timestamp, 'limit': limit})
+        params = [account, timestamp]
+        if limit is not None or reverse:
+            params.append(limit)
         if reverse:
-            options['reverse'] = True
-        return self.post('/', {'method': 'listunconfirmedbytime', 'params': [account, options]})
+            params.append(True)
+        return self.post('/', {'method': 'listunconfirmedbytime', 'params': params})
     ### END METHOD ################################### rpc_listUnconfirmedByTime(self, account:str, timestamp:int, limit:int=None, reverse:bool=False)
 
     def rpc_listUnspent(self, min_confirm:int=None, max_confirm:int=None, addresses:list=None):
