@@ -5,6 +5,34 @@ All notable changes to this project are documented in this file.
 ## [2.0.0]
 
 Brings `handywrapper` up to date with `hsd` v8.0.0. This is a breaking release.
+Existing code pinned to `handywrapper<2.0.0` is unaffected — nothing here changes
+until you explicitly upgrade.
+
+### Upgrading from 1.x
+
+Most code needs no changes at all. Check for these three specifically:
+
+1. **Error handling.** Every method used to swallow all failures and return
+   `{'error': '...'}` instead of raising. That's gone — methods now raise
+   `HandywrapperAPIError`, `HandywrapperConnectionError`, or
+   `HandywrapperDecodeError`. If you have code like:
+   ```python
+   result = hsd.getInfo()
+   if 'error' in result:
+       ...
+   ```
+   wrap the call in a `try/except` instead (see the README's Error Handling
+   section), or check `HandywrapperAPIError.body` for the same information
+   hsd previously returned.
+2. **`hsw.getRangeOfTransactions` was removed** (hsd v7 removed the underlying
+   endpoint). Replace it with `hsw.getWalletTxHistory(after=..., limit=...)`.
+3. **`hsw.walletResend()` was renamed to `hsw.adminResend()`.**
+   `hsw.walletResend(id=...)` now refers to a different, per-wallet endpoint
+   that hsd added in v7 — same method name, different behavior. If you call
+   `walletResend()`, change it to `adminResend()` to keep the old behavior.
+
+Everything else is additive or an internal shape fix — see Fixed/Added below
+for the full list, but nothing else requires a code change to keep working.
 
 ### Breaking
 
