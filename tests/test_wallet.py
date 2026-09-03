@@ -7,7 +7,7 @@ BASE = 'http://x:testkey@127.0.0.1:12039'
 
 # Each case: (method, kwargs, http_verb, path, extra)
 REST_CASES = [
-    ('createWallet', {'passphrase': 'p', 'id': 'w1'}, 'PUT', '/wallet/w1', {'body': {'watchOnly': True}}),
+    ('createWallet', {'passphrase': 'p', 'id': 'w1'}, 'PUT', '/wallet/w1', {'body': {'watchOnly': False}}),
     ('resetAuthToken', {'passphrase': 'p', 'id': 'w1'}, 'POST', '/wallet/w1/retoken', {}),
     ('getWalletInfo', {'id': 'w1'}, 'GET', '/wallet/w1', {}),
     ('getMasterHDKey', {'id': 'w1'}, 'GET', '/wallet/w1/master', {}),
@@ -211,3 +211,30 @@ def test_wallet_rpc_method(hsw_client, method, kwargs, rpc_method):
 def test_get_range_of_transactions_removed(hsw_client):
     # hsd v7 removed GET /wallet/:id/tx/range entirely; the dead method must not come back.
     assert not hasattr(hsw_client, 'getRangeOfTransactions')
+
+
+def test_create_wallet_omits_unset_key_fields(hsw_client):
+    # Bug-fix regression: createWallet used to always send accountKey/master/mnemonic
+    # as '' when not provided. hsd's watch-only account path does
+    # `if (typeof key === 'string') key = HDPublicKey.fromBase58(key)` unconditionally
+    # once accountKey is a string at all, so an empty string crashes hsd's base58
+    # decoder with a 500 "Out of bounds read" instead of cleanly omitting the field.
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.PUT, BASE + '/wallet/w1', json={'ok': True}, status=200)
+        hsw_client.createWallet(passphrase='p', id='w1')
+
+        sent = jsonlib.loads(rsps.calls[0].request.body)
+        assert 'accountKey' not in sent
+        assert 'master' not in sent
+        assert 'mnemonic' not in sent
+        assert sent['watchOnly'] is False
+
+
+def test_create_account_omits_unset_account_key(hsw_client):
+    # Same bug, same fix, on the account-creation endpoint.
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.PUT, BASE + '/wallet/w1/account/acc1', json={'ok': True}, status=200)
+        hsw_client.createAccount(passphrase='p', id='w1', account='acc1')
+
+        sent = jsonlib.loads(rsps.calls[0].request.body)
+        assert 'accountKey' not in sent

@@ -29,8 +29,8 @@ class hsw(HTTPClient):
         super().__init__(api_key, ip_address, port, timeout)
     ### END METHOD ################################### __init__(self, api_key:str, ip_address:str='127.0.0.1', port:int=12039, timeout:int=30):
 
-    def createWallet(self, passphrase:str, id:str='primary', account_key:str='', type:str='pubkeyhash',
-                    mnemonic:str='', master:str='', watch_only:bool=True, m:int=1, n:int=1):
+    def createWallet(self, passphrase:str, id:str='primary', account_key:str=None, type:str='pubkeyhash',
+                    mnemonic:str=None, master:str=None, watch_only:bool=False, m:int=1, n:int=1):
         """
         DESCRIPTION:
 
@@ -54,12 +54,14 @@ class hsw(HTTPClient):
 
             (*) passphrase  : A strong passphrase used to encrypt the wallet.
 
-            ( ) watch_only  : Watch for CLI. Default set to True.
+            ( ) watch_only  : Whether to create a watch-only wallet. Default = False
 
-            (*) account_key : The extended public key for the primary account in the new wallet. This value is ignored if _watch_only is false (key for CLI).
+            ( ) account_key : The extended public key for the primary account in the new wallet.
+                              Required if watch_only is True; ignored otherwise. Sending an empty
+                              string here crashes hsd's key decoder, so it's omitted unless given.
         """
 
-        body = {
+        body = _compact({
             'passphrase': passphrase,
             'watchOnly': watch_only,
             'accountKey': account_key,
@@ -68,10 +70,10 @@ class hsw(HTTPClient):
             'm': m,
             'n': n,
             'mnemonic': mnemonic,
-        }
+        })
         return self.put(f'/wallet/{id}', body)
-    ### END METHOD ################################### createWallet(self, id:str='primary', passphrase:str, account_key:str='', type:str='pubkeyhash',
-    #                                                               mnemonic:str='',master:str=None, watch_only:bool=True, m:int=1, n:int=1)
+    ### END METHOD ################################### createWallet(self, id:str='primary', passphrase:str, account_key:str=None, type:str='pubkeyhash',
+    #                                                               mnemonic:str=None, master:str=None, watch_only:bool=False, m:int=1, n:int=1)
 
     def resetAuthToken(self, passphrase:str, id:str='primary'):
         """
@@ -813,7 +815,7 @@ class hsw(HTTPClient):
         return self.get(f'/wallet/{id}/account/{account}')
     ### END METHOD ################################### getAccountInfo(self, id:str='primary', account:str='default')
 
-    def createAccount(self, passphrase:str, id:str, account:str, account_key:str='', type:str='pubkeyhash', m:int=1, n:int=1):
+    def createAccount(self, passphrase:str, id:str, account:str, account_key:str=None, type:str='pubkeyhash', m:int=1, n:int=1):
         """
         DESCRIPTION:
 
@@ -831,7 +833,8 @@ class hsw(HTTPClient):
 
             ( ) account_key : The extended public key for the account. This is ignored for
                               non watch only wallets. Watch only accounts can't accept private
-                              keys for import (or sign transactions).
+                              keys for import (or sign transactions). Sending an empty string
+                              here crashes hsd's key decoder, so it's omitted unless given.
 
             ( ) type        : Type of wallet (pubkeyhash, multisig). Default is 'pubkeyhash'
 
@@ -840,7 +843,7 @@ class hsw(HTTPClient):
             ( ) n           : 'n' value for multisig (m-of-n)
         """
 
-        body = {'type': type, 'passphrase': passphrase, 'accountKey': account_key, 'm': m, 'n': n}
+        body = _compact({'type': type, 'passphrase': passphrase, 'accountKey': account_key, 'm': m, 'n': n})
         return self.put(f'/wallet/{id}/account/{account}', body)
     ### END METHOD ################################### createAccount(self, passphrase:str, id:str, account:str,
     #                                                                      account_key:str='', type:str='pubkeyhash',
