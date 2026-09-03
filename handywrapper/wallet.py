@@ -80,7 +80,7 @@ class hsw(HTTPClient):
         """
         DESCRIPTION:
 
-            Create a new wallet with a specified ID.
+            Reset the wallet's API auth token, invalidating the previous one.
 
         PARAMS:
 
