@@ -69,6 +69,31 @@ Brings `handywrapper` up to date with `hsd` v8.0.0. This is a breaking release.
   non-string values (e.g. `"..." + n_blocks + "..."` where `n_blocks` is an `int`).
   Resolved across the board by building request bodies as plain Python dicts, which
   `requests` now serializes safely.
+- Any boolean query parameter (`hsd.getMemPoolInvalid`'s `verbose`; `hsw`'s
+  `getWalletTxHistory`/`getPendingTransactions`'s `reverse`; `getWalletName`'s `own`;
+  `getWalletBids`/`getWalletBidsByName`/`getWalletReveals`/`getWalletRevealsByName`'s
+  `own`) serialized as Python's `"True"`/`"False"` instead of the lowercase
+  `"true"`/`"false"` hsd's query validator requires — fixed once at the shared HTTP
+  primitive rather than per call site.
+- `hsd.rpc_getTxOutProof` sent `tx_id_list` as a bare string instead of an array,
+  which hsd's `gettxoutproof` rejects with "Param #0 must be a array."
+- `hsw.createWallet`/`createAccount` sent `accountKey`/`master`/`mnemonic` as empty
+  strings when not provided instead of omitting them, crashing hsd's base58 key
+  decoder with "Out of bounds read." `createWallet`'s `watch_only` default also
+  changed from `True` to `False`, and `passphrase` is now genuinely optional
+  (omitting it creates an unencrypted wallet, matching hsd's own behavior).
+- `hsw.rpc_listHistory`/`rpc_listHistoryAfter`/`rpc_listHistoryByTime`/
+  `rpc_listUnconfirmed`/`rpc_listUnconfirmedAfter`/`rpc_listUnconfirmedByTime` sent an
+  options object as a positional param instead of hsd's actual flat positional params
+  (`account, limit, reverse`), and defaulted `account` to `''` instead of `'*'`
+  (hsd's "all accounts" sentinel) — both rejected by hsd.
+- `hsd.rpc_createRawTransaction` always included an empty `data` output field, which
+  hsd's nulldata decoder rejects rather than ignores; now omitted unless given.
+- `hsw.rpc_createOPEN`/`rpc_createREVEAL`/`rpc_createREDEEM`/`rpc_createUPDATE`/
+  `rpc_createRENEWAL`/`rpc_createTRANSFER`/`rpc_createFINALIZE`/`rpc_createCANCEL`/
+  `rpc_createREVOKE` defaulted `account` to `''` and always included it, which hsd's
+  account lookup rejects with "Invalid type for database key" — now omitted unless
+  given.
 
 ### Added
 
@@ -99,6 +124,14 @@ Brings `handywrapper` up to date with `hsd` v8.0.0. This is a breaking release.
   count (hsd v8) — no request-side change.
 - hsd v6 changed validation-error HTTP responses from 500 to 400 on both APIs; this
   surfaces as `HandywrapperAPIError.status_code` accordingly.
+- Verified end-to-end against a live regtest hsd v8.0.0+ node, not just the mocked
+  test suite: the full name-auction lifecycle (OPEN → BID → REVEAL → REGISTER →
+  UPDATE → RENEW → TRANSFER → FINALIZE/CANCEL/REVOKE, plus REDEEM for a losing bid)
+  via the REST methods, the RPC `send*` methods, and the RPC `create*` + sign +
+  broadcast methods; multisig xpub exchange between two wallets; watch-only key/
+  address imports; batch RPC (`createBatch`/`sendBatch`); and the admin-only
+  endpoints (`deepClean`, `reset`, `pruneBlockchain`, `walletRescan`,
+  `recalculateBalances`).
 - Tracks `hsd` v8.0.0 (the current tagged release).
 
 ## [1.0.6] and earlier
